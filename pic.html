@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>作品展示</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    .filter-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .filter-buttons button {
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .filter-buttons button.active,
+    .filter-buttons button:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 80%;
+    }
+
+    .modal .close {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .modal .nav {
+      position: absolute;
+      top: 50%;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px;
+    }
+
+    .modal .nav.prev { left: 20px; }
+    .modal .nav.next { right: 20px; }
+
+    @media (max-width: 600px) {
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>作品集</h1>
+    <div class="filter-buttons">
+      <button onclick="filterImages('all')" class="active">ALL</button>
+      <button onclick="filterImages('npr')">NPR</button>
+      <button onclick="filterImages('pbr')">PBR</button>
+    </div>
+  </header>
+
+  <div class="gallery" id="gallery"></div>
+
+  <div class="modal" id="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <span class="nav prev" onclick="changeImage(-1)">&#10094;</span>
+    <span class="nav next" onclick="changeImage(1)">&#10095;</span>
+    <img id="modalImg" src="" alt="">
+  </div>
+
+  <script>
+    const images = [
+      { type: 'npr', src: 'images/npr_1.jpg' },
+      { type: 'npr', src: 'images/npr_2.png' },
+      { type: 'npr', src: 'images/npr_3.png' },
+      { type: 'npr', src: 'images/npr_4.png' },
+      { type: 'pbr', src: 'images/pbr_1.jpg' },
+      { type: 'pbr', src: 'images/pbr_2.png' },
+      { type: 'pbr', src: 'images/pbr_3.png' },
+      { type: 'pbr', src: 'images/pbr_4.png' },
+      { type: 'pbr', src: 'images/pbr_5.png' },
+      { type: 'pbr', src: 'images/pbr_6.png' },
+      { type: 'pbr', src: 'images/pbr_7.png' },
+      { type: 'pbr', src: 'images/pbr_8.png' },
+      { type: 'pbr', src: 'images/pbr_9.png' },
+      { type: 'pbr', src: 'images/pbr_10.png' },
+      { type: 'pbr', src: 'images/pbr_11.png' },
+      { type: 'pbr', src: 'images/pbr_12.png' },
+      { type: 'pbr', src: 'images/pbr_13.png' },
+      // 继续添加更多图
+    ];
+
+    let currentImages = [];
+    let currentIndex = 0;
+
+    function renderGallery(filter = 'all') {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      currentImages = images.filter(img => filter === 'all' || img.type === filter);
+      currentImages.forEach((img, index) => {
+        const imageEl = document.createElement('img');
+        imageEl.src = img.src;
+        imageEl.onclick = () => openModal(index);
+        gallery.appendChild(imageEl);
+      });
+    }
+
+    function openModal(index) {
+      currentIndex = index;
+      const modal = document.getElementById('modal');
+      const modalImg = document.getElementById('modalImg');
+      modal.style.display = 'flex';
+      modalImg.src = currentImages[index].src;
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function changeImage(direction) {
+      currentIndex += direction;
+      if (currentIndex < 0) currentIndex = currentImages.length - 1;
+      if (currentIndex >= currentImages.length) currentIndex = 0;
+      document.getElementById('modalImg').src = currentImages[currentIndex].src;
+    }
+
+    function filterImages(type) {
+      document.querySelectorAll('.filter-buttons button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderGallery(type);
+    }
+
+    // 初始加载
+    renderGallery();
+  </script>
+
+</body>
+</html>
